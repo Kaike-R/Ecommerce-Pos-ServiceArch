@@ -1,17 +1,14 @@
 package br.com.kaikedev.productservice.Repository;
 
-
 import br.com.kaikedev.productservice.Entity.ProductEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
-
 
 @Repository
 public class ProductRepository {
@@ -25,82 +22,112 @@ public class ProductRepository {
     private static final Logger log = LoggerFactory.getLogger(ProductRepository.class);
 
     public Collection<ProductEntity> getProducts() {
-        String sql = "select * from product";
-        Collection<ProductEntity> products = null;
-
+        String sql = "SELECT id, name, description, price, created_at, updated_at, owner_id ,quantity FROM product";
         try {
             log.info("Executing query: " + sql);
-            products = jdbcTemplate.query(sql, (rs, rowNum) -> new ProductEntity(
+            return jdbcTemplate.query(sql, (rs, rowNum) -> new ProductEntity(
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    rs.getDouble("price")
+                    rs.getDouble("price"),
+                    rs.getTimestamp("created_at").toLocalDateTime(),
+                    rs.getTimestamp("updated_at").toLocalDateTime(),
+                    rs.getInt("owner_id"),
+                    rs.getInt("quantity")
             ));
         } catch (Exception exception) {
-            log.error(exception.getMessage());
+            log.error("Error in getProducts: {}", exception.getMessage());
+            return null;
         }
-
-
-        return products;
-
     }
 
     public ProductEntity getProduct(int id) {
-        String sql = "select * from product where id = ?";
-        ProductEntity product = null;
-
+        String sql = "SELECT * FROM product WHERE id = ?";
         try {
-            log.info("Executing query: " + sql);
-            product = jdbcTemplate.queryForObject(sql, (rs, rownow) -> new ProductEntity(
-               rs.getInt("id"),
-               rs.getString("name"),
-               rs.getString("description"),
-               rs.getDouble("price")
+            log.info("Executing query: " + sql + " with id: " + id);
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new ProductEntity(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getDouble("price"),
+                    rs.getTimestamp("createdAt").toLocalDateTime(),
+                    rs.getTimestamp("updatedAt").toLocalDateTime(),
+                    rs.getInt("owner_id"),
+                    rs.getInt("quantity")
             ), id);
         } catch (Exception exception) {
-            log.error(exception.getMessage());
+            log.error("Error in getProduct: {}", exception.getMessage());
+            return null;
         }
-
-        return product;
     }
 
     public boolean insertProduct(ProductEntity product) {
-        String sql = "insert into product(id, name, description, price) values(?,?,?,?)";
-        Integer nextId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(id), 0) + 1 FROM product", Integer.class);
+        String sql = "INSERT INTO product (name, description, price, created_at, updated_at, owner_id, quantity) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        LocalDateTime now = LocalDateTime.now();
+
+        product.setCreatedAt(now);
+        product.setUpdatedAt(now);
+
         try {
-            log.info("Executing query: " + sql);
-            jdbcTemplate.update(sql, nextId, product.getName(), product.getDescription(), product.getPrice());
+            log.info("Executing query: {} with {}", sql, product.toString());
+            jdbcTemplate.update(sql,
+                    product.getName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    Timestamp.valueOf(product.getCreatedAt()),
+                    Timestamp.valueOf(product.getUpdatedAt()),
+                    product.getOwnerId(),
+                    product.getQuantity()
+            );
             return true;
         } catch (Exception exception) {
-            log.error(exception.getMessage());
+            log.error("Error in insertProduct: {}", exception.getMessage());
             return false;
         }
     }
 
     public boolean updateProduct(ProductEntity product) {
-        String sql = "update product set name = ?, description = ?, price = ? where id = ?";
-        Integer nextId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM product", Integer.class);
+        String sql = "UPDATE product SET name = ?, description = ?, price = ?, updatedAt = ?, quantity = ? WHERE id = ?";
+        product.setUpdatedAt(LocalDateTime.now());
+
         try {
             log.info("Executing query: " + sql);
-            jdbcTemplate.update(sql, product.getId(), product.getName(), product.getDescription(), product.getPrice());
+            jdbcTemplate.update(sql,
+                    product.getName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getUpdatedAt(),
+                    product.getQuantity(),
+                    product.getId()
+            );
             return true;
         } catch (Exception exception) {
-            log.error(exception.getMessage());
+            log.error("Error in updateProduct: {}", exception.getMessage());
             return false;
         }
     }
 
+//    public ProductEntity uptadeStock(ProductEntity productEntity) {
+//        String sql = "UPDATE product SET quantity = ?, updated_at = ? WHERE id = ?";
+//
+//        try {
+//            log.info("Executing query: {} with {}", sql, productEntity.toString());
+//            jdbcTemplate.update(sql, productEntity.getQuantity(), productEntity.getId());
+//        } catch (Exception exception) {
+//            log.error("Error in uptadeStock: {}", exception.getMessage());
+//        }
+//        return productEntity;
+//    }
+
     public boolean deleteProduct(Integer id) {
-        String sql = "delete from product where id = ?";
+        String sql = "DELETE FROM product WHERE id = ?";
         try {
             log.info("Executing query: " + sql);
             jdbcTemplate.update(sql, id);
             return true;
         } catch (Exception exception) {
-            log.error(exception.getMessage());
+            log.error("Error in deleteProduct: {}", exception.getMessage());
             return false;
         }
-
     }
-
 }

@@ -1,24 +1,52 @@
 package br.com.kaikedev.productservice.Controller;
 
 
+import br.com.kaikedev.productservice.Entity.Dto.ProductDto;
+import br.com.kaikedev.productservice.Service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/product")
 public class ProductController {
 
 
-    @GetMapping
-    public ResponseEntity<?> getProduct() {
+    private ProductService productService;
 
-        return ResponseEntity.ok().build();
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getProducts() {
+        List<?> productResponses = productService.getAllProducts();
+        return ResponseEntity.ok(productResponses);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductById(@RequestParam Integer id) {
+
+        ProductDto productDto = productService.getProductById(id);
+
+        return ResponseEntity.ok(productDto);
+    }
+
+    @GetMapping("/image/{productId}")
+    public ResponseEntity<?> findImageByProductId(@RequestParam Integer productId) {
+
+        List<String> images = productService.findImageByProductId(productId);
+
+        return ResponseEntity.ok(images);
     }
 
     @PostMapping
-    public ResponseEntity<?> createProduct() {
+    public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto) {
 
-        return ResponseEntity.ok().build();
+        Boolean x = productService.createProduct(productDto);
+
+        return ResponseEntity.ok(x) ;
     }
 
     @PutMapping
@@ -32,6 +60,4 @@ public class ProductController {
 
         return ResponseEntity.ok().build();
     }
-
-
 }
