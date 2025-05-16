@@ -1,14 +1,10 @@
 package br.com.kaikedev.orderservice.Controller;
 
 
-import br.com.kaikedev.orderservice.Entity.Dto.OrderRequest;
-import br.com.kaikedev.orderservice.Entity.Dto.OrderResponse;
-import br.com.kaikedev.orderservice.Entity.Dto.PaymentRequest;
-import br.com.kaikedev.orderservice.Entity.Dto.PaymentResponse;
+import br.com.kaikedev.orderservice.Entity.Dto.*;
 import br.com.kaikedev.orderservice.Entity.Enum.OrderEnum;
 import br.com.kaikedev.orderservice.Entity.OrderEntity;
 import br.com.kaikedev.orderservice.Service.OrderService;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,17 +53,16 @@ public class OrderController {
     }
 
     @PostMapping("/ship")
-    public ResponseEntity<OrderResponse> logisticOrder(@RequestBody OrderRequest orderRequest) throws Exception {
+    public ResponseEntity<LogisticResponse> logisticOrder(@RequestBody LogisticRequest orderRequest) throws Exception {
 
-        OrderEntity orderEntity = orderService.createOrder(orderRequest);
+        OrderEntity orderEntity = orderService.logisticOrder(orderRequest);
 
-        OrderResponse orderResponse = new OrderResponse();
+        LogisticResponse logisticResponse = new LogisticResponse();
 
-        orderResponse.setMessage(orderEntity.getStatus().toString());
+        logisticResponse.setMessage(orderEntity.getStatus().toString());
+        logisticResponse.setTransactionId(orderEntity.getId().toString());
 
-        orderResponse.setCustomer_id(orderEntity.getCustomerId());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(logisticResponse);
 
     }
 

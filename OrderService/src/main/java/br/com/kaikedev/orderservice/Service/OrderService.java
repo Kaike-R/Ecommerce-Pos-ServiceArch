@@ -87,9 +87,6 @@ public class OrderService {
     @Transactional
     public OrderEntity payOrder(PaymentRequest paymentRequest) throws Exception {
 
-
-
-
         OrderEntity order = orderRepository.findById(paymentRequest.getOrderId()).orElseThrow(
                 () -> new InsufficientResourcesException("Order not found")
         );
