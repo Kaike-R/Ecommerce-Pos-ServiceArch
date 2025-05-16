@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: GatewayService
+    image: gateway-service:0.1
+    container_name: gateway-service
+    environment:
+      PORT: 8000
+      PRODUCT_SERVICE: http://product-service:8080
+      ORDER_SERVICE: http://order-service:8080
+      USER_SERVICE: http://user-service:8080
+      PAYMENT_SERVICE: http://payment-service:8080
+      LOGISTIC_SERVICE: http://logistic-service:8080
+    ports:
+      - "8080:8000"
+    networks:
+      - rede-interna
+
+  product-service:
+    build:
+      context: ProductService
+    image: product-service:0.3
+    container_name: product-service
+    depends_on:
+      - db
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase?currentSchema=productdatabase
+      DATASOURCE_USERNAME: myuser
+      DATASOURCE_PASSWORD: mypassword
+    ports:
+      - "8001:8080"
+    networks:
+      - rede-interna
+
+  # Exemplo de estrutura dos outros serviços
+  order-service:
+    build:
+      context: OrderService
+    image: order-service:0.1
+    container_name: order-service
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase?currentSchema=orderdatabase
+      DATASOURCE_USERNAME: myuser
+      DATASOURCE_PASSWORD: mypassword
+      GATEWAY_SERVICE: http://gateway-service:8080
+    ports:
+      - "8002:8080"
+    networks:
+      - rede-interna
+
+  user-service:
+    build:
+      context: UserService
+    image: user-service:0.1
+    container_name: user-service
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase?currentSchema=userdatabase
+      DATASOURCE_USERNAME: myuser
+      DATASOURCE_PASSWORD: mypassword
+    ports:
+      - "8003:8080"
+    networks:
+      - rede-interna
+
+#  email-service:
+#    image: email-service:0.1
+#    container_name: email-service
+#    ports:
+#      - "8004:8080"
+#    networks:
+#      - rede-interna
+#
+#  logistic-service:
+#    image: logistic-service:0.1
+#    container_name: logistic-service
+#    ports:
+#      - "8005:8080"
+#    networks:
+#      - rede-interna
+
+  db:
+    image: postgres:17
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rede-interna
+
+  prometheus:
+    image: prom/prometheus:v2.44.0
+    container_name: prometheus-esalq
+    user: root
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - rede-interna
+
+  grafana:
+    image: grafana/grafana:9.5.2
+    container_name: grafana-esalq
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    networks:
+      - rede-interna
+
+  # Adicionando cAdvisor para monitorar containers
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "7080:8080"
+    networks:
+      - rede-interna
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: postgres_data
+  grafana_data:
+
+networks:
+  rede-interna:
+    driver: bridge
