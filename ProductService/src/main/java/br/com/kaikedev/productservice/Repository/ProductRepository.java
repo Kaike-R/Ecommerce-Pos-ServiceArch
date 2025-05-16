@@ -21,6 +21,38 @@ public class ProductRepository {
 
     private static final Logger log = LoggerFactory.getLogger(ProductRepository.class);
 
+
+    public void Initialize()
+    {
+        String sql = """
+                
+                create table if not exists product(
+                	id SERIAL primary key,
+                	name VARCHAR(255) not null,
+                	description VARCHAR(255),
+                	price DECIMAL(10,2) not null,
+                	created_at TIMESTAMP,
+                	updated_at TIMESTAMP,
+                	owner_id INT,
+                	quantity INT not null
+                );
+                
+                create table if not exists product_image(
+                	id SERIAL primary key,
+                	product_id INT not null,
+                	image text,
+                	foreign key (product_id) references product(id) on delete cascade
+                );
+                
+                """;
+
+
+        jdbcTemplate.execute(sql);
+
+
+    }
+
+
     public Collection<ProductEntity> getProducts() {
         String sql = "SELECT id, name, description, price, created_at, updated_at, owner_id ,quantity FROM product";
         try {
@@ -107,17 +139,17 @@ public class ProductRepository {
         }
     }
 
-//    public ProductEntity uptadeStock(ProductEntity productEntity) {
-//        String sql = "UPDATE product SET quantity = ?, updated_at = ? WHERE id = ?";
-//
-//        try {
-//            log.info("Executing query: {} with {}", sql, productEntity.toString());
-//            jdbcTemplate.update(sql, productEntity.getQuantity(), productEntity.getId());
-//        } catch (Exception exception) {
-//            log.error("Error in uptadeStock: {}", exception.getMessage());
-//        }
-//        return productEntity;
-//    }
+    public ProductEntity uptadeStock(ProductEntity productEntity) {
+        String sql = "UPDATE product SET quantity = ?, updated_at = ? WHERE id = ?";
+
+        try {
+            log.info("Executing query: {} with {}", sql, productEntity.toString());
+            jdbcTemplate.update(sql, productEntity.getQuantity(), productEntity.getId());
+        } catch (Exception exception) {
+            log.error("Error in uptadeStock: {}", exception.getMessage());
+        }
+        return productEntity;
+    }
 
     public boolean deleteProduct(Integer id) {
         String sql = "DELETE FROM product WHERE id = ?";

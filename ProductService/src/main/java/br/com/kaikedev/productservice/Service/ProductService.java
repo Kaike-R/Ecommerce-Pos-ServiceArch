@@ -74,6 +74,15 @@ public class ProductService {
         return productRepository.insertProduct(productEntity);
     }
 
+    public ProductEntity uptadeStock(ProductDto productDto) {
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setName(productDto.getName());
+        productEntity.setDescription(productDto.getDescription());
+        productEntity.setPrice(productDto.getPrice());
+        productEntity.setQuantity(productDto.getQuantity());
+        return productRepository.uptadeStock(productEntity);
+    }
+
     public ProductDto updateProduct(ProductDto productDto) {
         ProductEntity productEntity = new ProductEntity();
         productEntity.setName(productDto.getName());

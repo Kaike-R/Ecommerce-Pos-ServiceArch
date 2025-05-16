@@ -14,6 +14,8 @@ public class ProductDto {
 
     private List<String> images;
 
+    private Integer quantity;
+
     ProductDto(String name, String description, Double price ,List<String> images) {
         this.name = name;
         this.description = description;
@@ -22,6 +24,14 @@ public class ProductDto {
     }
 
     public ProductDto() {}
+
+    public ProductDto(String name, String description, Double price, List<String> images, Integer quantity) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.images = images;
+        this.quantity = quantity;
+    }
 
     public String getDescription() {
         return description;
@@ -55,6 +65,14 @@ public class ProductDto {
         this.price = price;
     }
 
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,6 +85,7 @@ public class ProductDto {
     public int hashCode() {
         return Objects.hash(getName(), getDescription(), getImages());
     }
+
 
 
 }

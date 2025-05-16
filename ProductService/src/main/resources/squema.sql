@@ -1,15 +1,19 @@
-CREATE TABLE IF NOT EXISTS PRODUCT(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    description TEXT,
-    price DECIMAL(10,2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    quantity INT
+create table if not exists product(
+	id SERIAL primary key,
+	name VARCHAR(255) not null,
+	description VARCHAR(255),
+	price DECIMAL(10,2) not null,
+	created_at TIMESTAMP,
+	updated_at TIMESTAMP,
+	owner_id INT,
+	quantity INT not null
 );
 
-CREATE TABLE IF NOT EXISTS product_image(
-    id SERIAL PRIMARY KEY,
-    product_id INTEGER REFERENCES product(id),
-    image TEXT
-)
+create table if not exists product_image(
+	id SERIAL primary key,
+	product_id INT not null,
+	image text,
+	foreign key (product_id) references product(id) on delete cascade
+);
+
+select * from product;

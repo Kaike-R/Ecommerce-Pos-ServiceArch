@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/product")
+@RequestMapping("/api")
 public class ProductController {
-
 
     private ProductService productService;
 
@@ -53,6 +52,12 @@ public class ProductController {
     public ResponseEntity<?> updateProduct() {
 
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/updateStocks")
+    public ResponseEntity<?> updateStocks(@RequestBody ProductDto productDto) {
+
+        return ResponseEntity.ok(productService.uptadeStock(productDto));
     }
 
     @DeleteMapping
