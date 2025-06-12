@@ -2,34 +2,31 @@ package br.com.kaikedev.orderservice.Entity.Dto;
 
 public class PaymentResponse {
 
-    private Boolean success;
-    private String message;
     private String transactionId;
+    private String status;
+    private String message;
 
 
-    public PaymentResponse(Boolean success, String message, String transactionId) {
-        this.success = success;
-        this.message = message;
+    public PaymentResponse(String status, String transactionId) {
+        this.status = status;
         this.transactionId = transactionId;
     }
 
 
     public PaymentResponse() {}
 
-    public Boolean getSuccess() {
-        return success;
-    }
-
-    public void setSuccess(Boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
+    public PaymentResponse(String transactionId, String status, String message) {
+        this.transactionId = transactionId;
+        this.status = status;
         this.message = message;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getTransactionId() {
@@ -38,5 +35,13 @@ public class PaymentResponse {
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

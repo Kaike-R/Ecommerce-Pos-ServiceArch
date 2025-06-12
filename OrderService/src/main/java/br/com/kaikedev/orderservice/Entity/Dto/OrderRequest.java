@@ -9,12 +9,10 @@ public class OrderRequest {
 
     private List<OrderItemRequest> items;
 
-    private String paymentMethod;
 
-    public OrderRequest(Integer userId, List<OrderItemRequest> items, String paymentMethod) {
+    public OrderRequest(Integer userId, List<OrderItemRequest> items) {
         this.userId = userId;
         this.items = items;
-        this.paymentMethod = paymentMethod;
     }
 
     public OrderRequest() {}
@@ -33,13 +31,5 @@ public class OrderRequest {
 
     public void setItems(List<OrderItemRequest> items) {
         this.items = items;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
     }
 }

@@ -22,35 +22,35 @@ public class ProductRepository {
     private static final Logger log = LoggerFactory.getLogger(ProductRepository.class);
 
 
-    public void Initialize()
-    {
-        String sql = """
-                
-                create table if not exists product(
-                	id SERIAL primary key,
-                	name VARCHAR(255) not null,
-                	description VARCHAR(255),
-                	price DECIMAL(10,2) not null,
-                	created_at TIMESTAMP,
-                	updated_at TIMESTAMP,
-                	owner_id INT,
-                	quantity INT not null
-                );
-                
-                create table if not exists product_image(
-                	id SERIAL primary key,
-                	product_id INT not null,
-                	image text,
-                	foreign key (product_id) references product(id) on delete cascade
-                );
-                
-                """;
-
-
-        jdbcTemplate.execute(sql);
-
-
-    }
+//    public void Initialize()
+//    {
+//        String sql = """
+//
+//                create table if not exists product(
+//                	id SERIAL primary key,
+//                	name VARCHAR(255) not null,
+//                	description VARCHAR(255),
+//                	price DECIMAL(10,2) not null,
+//                	created_at TIMESTAMP,
+//                	updated_at TIMESTAMP,
+//                	owner_id INT,
+//                	quantity INT not null
+//                );
+//
+//                create table if not exists product_image(
+//                	id SERIAL primary key,
+//                	product_id INT not null,
+//                	image text,
+//                	foreign key (product_id) references product(id) on delete cascade
+//                );
+//
+//                """;
+//
+//
+//        jdbcTemplate.execute(sql);
+//
+//
+//    }
 
 
     public Collection<ProductEntity> getProducts() {
@@ -73,8 +73,8 @@ public class ProductRepository {
         }
     }
 
-    public ProductEntity getProduct(int id) {
-        String sql = "SELECT * FROM product WHERE id = ?";
+    public ProductEntity getProduct(Integer id) {
+        String sql = "SELECT id, name, description, price, created_at, updated_at, owner_id, quantity FROM product WHERE id = ?";
         try {
             log.info("Executing query: " + sql + " with id: " + id);
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new ProductEntity(
@@ -82,8 +82,8 @@ public class ProductRepository {
                     rs.getString("name"),
                     rs.getString("description"),
                     rs.getDouble("price"),
-                    rs.getTimestamp("createdAt").toLocalDateTime(),
-                    rs.getTimestamp("updatedAt").toLocalDateTime(),
+                    rs.getTimestamp("created_at").toLocalDateTime(),
+                    rs.getTimestamp("updated_at").toLocalDateTime(),
                     rs.getInt("owner_id"),
                     rs.getInt("quantity")
             ), id);
@@ -144,7 +144,7 @@ public class ProductRepository {
 
         try {
             log.info("Executing query: {} with {}", sql, productEntity.toString());
-            jdbcTemplate.update(sql, productEntity.getQuantity(), productEntity.getId());
+            jdbcTemplate.update(sql, productEntity.getQuantity(),Timestamp.valueOf(LocalDateTime.now()),productEntity.getId());
         } catch (Exception exception) {
             log.error("Error in uptadeStock: {}", exception.getMessage());
         }

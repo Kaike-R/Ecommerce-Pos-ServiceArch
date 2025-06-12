@@ -25,66 +25,54 @@ public class PaymentControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // Teste com número de cartão inválido
     @Test
     void shouldReturnBadRequestWhenCardNumberIsInvalid() throws Exception {
-        // Criação de um PaymentRequest com um número de cartão inválido
         PaymentRequest paymentRequest = new PaymentRequest(
                 12345, // orderId
                 100.0, // amount
-                "BRL", // currency
                 "CREDIT_CARD", // paymentMethod
-                new CardDto("João", "12345", "12", "30", "123", "VISA"), // card
-                new UserDto("João Silva", "joao@example.com","name","213124324232") // user
+                new CardDto("João", "12345", "12", "30", "123", "VISA") // card
         );
         String jsonRequest = objectMapper.writeValueAsString(paymentRequest);
 
         mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
-                .andExpect(status().isBadRequest()) // Espera um erro 400
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Número do cartão inválido."));
     }
 
-    // Teste com CVV inválido
     @Test
     void shouldReturnBadRequestWhenCvvIsInvalid() throws Exception {
-        // Criação de um PaymentRequest com um CVV inválido
         PaymentRequest paymentRequest = new PaymentRequest(
                 12345, // orderId
                 100.0, // amount
-                "BRL", // currency
                 "CREDIT_CARD", // paymentMethod
-                new CardDto("João", "1234567890123456", "12", "30", "000", "VISA"), // card
-                new UserDto("João Silva", "joao@example.com","11","1109843274924") // user
+                new CardDto("João", "1234567890123456", "12", "30", "000", "VISA") // card
         );
         String jsonRequest = objectMapper.writeValueAsString(paymentRequest);
 
         mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
-                .andExpect(status().isBadRequest()); // Espera um erro 400
+                .andExpect(status().isBadRequest());
     }
 
-    // Teste com dados válidos
     @Test
     void shouldReturnSuccessWhenPaymentIsValid() throws Exception {
-        // Criação de um PaymentRequest válido
         PaymentRequest paymentRequest = new PaymentRequest(
                 12345, // orderId
                 100.0, // amount
-                "BRL", // currency
                 "CREDIT_CARD", // paymentMethod
-                new CardDto("João", "1234567890123456", "12", "30", "123", "VISA"), // card
-                new UserDto("João Silva", "joao@example.com", "123", "123123120414") // user
+                new CardDto("João", "1234567890123456", "12", "30", "123", "VISA") // card
         );
         String jsonRequest = objectMapper.writeValueAsString(paymentRequest);
 
         mockMvc.perform(post("/api")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
-                .andExpect(status().isOk()) // Espera um status 200
-                .andExpect(jsonPath("$.transactionId").isNotEmpty()) // Espera que o transactionId não esteja vazio
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.transactionId").isNotEmpty())
                 .andExpect(jsonPath("$.status").value("APPROVED"));
     }
 }

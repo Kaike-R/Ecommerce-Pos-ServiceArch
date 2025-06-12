@@ -25,7 +25,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@RequestParam Integer id) {
+    public ResponseEntity<?> getProductById(@PathVariable Integer id) {
 
         ProductDto productDto = productService.getProductById(id);
 
@@ -33,7 +33,7 @@ public class ProductController {
     }
 
     @GetMapping("/image/{productId}")
-    public ResponseEntity<?> findImageByProductId(@RequestParam Integer productId) {
+    public ResponseEntity<?> findImageByProductId(@PathVariable Integer productId) {
 
         List<String> images = productService.findImageByProductId(productId);
 

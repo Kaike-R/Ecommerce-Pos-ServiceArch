@@ -1,0 +1,71 @@
+package br.com.kaikedev.gateway.Configs;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import java.security.AuthProvider;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Autowired
+    public SecurityFilter securityFilter;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers-> headers.frameOptions().disable())
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/bearer").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/get").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form -> form.disable()) // Desabilitar form de login auth
+                .httpBasic(basic -> basic.disable()) // Desabilitar http auth
+                .build();
+    }
+
+//    @Bean
+//    public AuthenticationProvider authenticationProvider() {
+//        return new AuthenticationProvider() {
+//
+//            @Override
+//            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+//                String token = authentication.getCredentials().toString();
+//                return new UsernamePasswordAuthenticationToken(
+//                        extractUsernameFromToken(token),
+//                        null, // No password
+//                        extractAuthoritiesFromToken(token)
+//
+//                );
+//            }
+//
+//            @Override
+//            public boolean supports(Class<?> authentication) {
+//                return JwtAuth;
+//            }
+//        };
+//    }
+
+}
+

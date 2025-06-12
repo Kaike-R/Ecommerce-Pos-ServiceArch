@@ -10,18 +10,21 @@ import br.com.kaikedev.orderservice.RestCall.LogisticClient;
 import br.com.kaikedev.orderservice.RestCall.PaymentClient;
 import br.com.kaikedev.orderservice.RestCall.ProductClient;
 import br.com.kaikedev.orderservice.RestCall.UserClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import javax.naming.InsufficientResourcesException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private OrderRepository orderRepository;
     private ProductClient productClient;
     private UserClient userClient;
@@ -44,7 +47,7 @@ public class OrderService {
         }
 
         for(OrderItemRequest item : orderRequest.getItems()) {
-            Boolean inStock = productClient.CheckStock(item.getProductId());
+            Boolean inStock = productClient.CheckStock(item.getProductId(), item.getQuantity());
             if (!inStock) {
                 throw new Exception("Product: " + item.getProductId() + "dont have stock");
             }
@@ -62,17 +65,19 @@ public class OrderService {
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {
             ProductDto product = productClient.getProduct(itemRequest.getProductId());
 
+            log.info("depois do getProduct");
             OrderItemEntity item = new OrderItemEntity();
             item.setProductId(product.getId());
             item.setQuantity(itemRequest.getQuantity());
             item.setProductName(product.getName());
             item.setProductUnitPrice(product.getPrice());
-            item.setSubTotalPrice(product.getPrice()*itemRequest.getQuantity());
+            item.setSubTotalPrice(product.getPrice() * itemRequest.getQuantity());
 
             items.add(item);
             total += item.getSubTotalPrice();
 
             productClient.updateStock(product.getId(), itemRequest.getQuantity());
+
 
         }
 
@@ -91,13 +96,31 @@ public class OrderService {
                 () -> new InsufficientResourcesException("Order not found")
         );
 
-        PaymentResponse paymentResponse = paymentClient.processPayment(paymentRequest);
+        log.info("depois do getOrder");
+        log.info(paymentRequest.toString());
+        log.info(order.toString());
 
-        if (paymentResponse.getSuccess())
-        {
+        Double amount = order.getTotalAmount();
+        paymentRequest.setAmount(amount);
+
+
+
+//        if (Objects.equals(paymentResponse.getStatus(), "APPROVED"))
+//        {
+//            order.setStatus(OrderEnum.PAID);
+//            orderRepository.save(order);
+//        } else {
+//            order.setStatus(OrderEnum.PAYMENT_FAILED);
+//            orderRepository.save(order);
+//            compensateStock(order.getItens());
+//            throw new Exception("payment failure");
+//        }
+
+        try {
+            PaymentResponse paymentResponse = paymentClient.processPayment(paymentRequest);
             order.setStatus(OrderEnum.PAID);
             orderRepository.save(order);
-        } else {
+        } catch (Exception e) {
             order.setStatus(OrderEnum.PAYMENT_FAILED);
             orderRepository.save(order);
             compensateStock(order.getItens());
@@ -110,14 +133,19 @@ public class OrderService {
     @Transactional
     public OrderEntity logisticOrder(LogisticRequest logisticRequest) throws Exception {
 
-        OrderEntity order = orderRepository.findById(logisticRequest.getOrderId()).get();
+        OrderEntity order = orderRepository.findById(logisticRequest.getOrderId()).orElseThrow(
+                () -> new InsufficientResourcesException("Order not found")
+        );
         LogisticResponse logisticResponse;
         try {
             order.setStatus(OrderEnum.PROCESSING);
             orderRepository.save(order);
             logisticResponse = logisticClient.processShipping(logisticRequest);
         } catch (Exception e) {
+            order.setStatus(OrderEnum.PROCESSING_FAILED);
+            orderRepository.save(order);
             throw new Exception(e);
+
         }
 
         if (logisticResponse.isDeliveary())
@@ -158,12 +186,14 @@ public class OrderService {
 
     @Transactional
     public Boolean cancelOrder(Integer id) throws Exception {
-        OrderEntity orderEntity = orderRepository.findById(id).get();
+        OrderEntity orderEntity = orderRepository.findById(id).orElseThrow(
+                () -> new InsufficientResourcesException("Order not found")
+        );
 
 
-        if (!orderEntity.getStatus().equals(OrderEnum.CANCELLED)) {
-            throw new Exception("Order Cannot be cancel" + orderEntity.getStatus());
-        }
+//        if (!orderEntity.getStatus().equals(OrderEnum.CANCELLED)) {
+//            throw new Exception("Order Cannot be cancel" + orderEntity.getStatus());
+//        }
 
         compensateStock(orderEntity.getItens());
         orderEntity.setStatus(OrderEnum.CANCELLED);

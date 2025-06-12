@@ -1,0 +1,70 @@
+package br.com.kaikedev.gateway.Configs;
+
+import br.com.kaikedev.gateway.Service.LoginService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+
+@Component
+public class SecurityFilter extends OncePerRequestFilter {
+    private final LoginService loginService;
+    private final AuthenticationManager authenticationManager;
+
+    public SecurityFilter(LoginService loginService, AuthenticationManager authenticationManager) {
+        this.loginService = loginService;
+        this.authenticationManager = authenticationManager;
+    }
+
+//    @Autowired
+//    LoginService loginService;
+
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        //String token = this.recieveToken(request);
+        String token = request.getHeader("Authorization");
+        System.out.println("Internal Filter");
+        System.out.println("Token: " + token);
+        if (token != null) {
+            System.out.println("Bearer token found");
+
+            String validateToken = loginService.getTokenFromService(token);
+
+            System.out.println("Validate Token: " + validateToken);
+
+            Authentication token1 = new JwtAuthenticationToken(validateToken);
+
+            SecurityContextHolder.getContext().setAuthentication(
+                    authenticationManager.authenticate(token1)
+            );
+
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String recieveToken (HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null) return null;
+        if (!authHeader.startsWith("Bearer ")) return null;
+        System.out.println("Recieved token: " + authHeader);
+        return authHeader;//authHeader.replace("Bearer ", "");
+    }
+
+}

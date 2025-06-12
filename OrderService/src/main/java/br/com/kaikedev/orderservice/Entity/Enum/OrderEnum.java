@@ -8,7 +8,8 @@ public enum OrderEnum {
     DELIVERED,
     CANCELLED,
     PAYMENT_FAILED,
-    REFUNDED;
+    REFUNDED,
+    PROCESSING_FAILED;
 
 
     // Método para verificar transições válidas
@@ -19,7 +20,9 @@ public enum OrderEnum {
             case PAID:
                 return newStatus == PROCESSING || newStatus == CANCELLED || newStatus == REFUNDED;
             case PROCESSING:
-                return newStatus == SHIPPED || newStatus == CANCELLED;
+                return newStatus == SHIPPED || newStatus == CANCELLED || newStatus == PROCESSING_FAILED;
+            case PROCESSING_FAILED:
+                return newStatus == REFUNDED || newStatus == PROCESSING_FAILED || newStatus == PROCESSING || newStatus == SHIPPED;
             case SHIPPED:
                 return newStatus == DELIVERED;
             case DELIVERED:

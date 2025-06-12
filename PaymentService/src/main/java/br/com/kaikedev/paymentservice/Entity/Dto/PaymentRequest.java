@@ -7,18 +7,14 @@ public class PaymentRequest {
 
     private Integer orderId;
     private Double amount;
-    private String currency;
     private String paymentMethod;
     private CardDto card;
-    private UserDto user;
 
-    public PaymentRequest(Integer orderId, Double amount, String currency, String paymentMethod, CardDto card, UserDto user) {
+    public PaymentRequest(Integer orderId, Double amount, String paymentMethod, CardDto card) {
         this.orderId = orderId;
         this.amount = amount;
-        this.currency = currency;
         this.paymentMethod = paymentMethod;
         this.card = card;
-        this.user = user;
     }
 
     public PaymentRequest() {}
@@ -40,14 +36,6 @@ public class PaymentRequest {
         this.amount = amount;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
     public String getPaymentMethod() {
         return paymentMethod;
     }
@@ -62,13 +50,5 @@ public class PaymentRequest {
 
     public void setCard(CardDto card) {
         this.card = card;
-    }
-
-    public UserDto getUser() {
-        return user;
-    }
-
-    public void setUser(UserDto user) {
-        this.user = user;
     }
 }

@@ -3,7 +3,9 @@ package br.com.kaikedev.paymentservice.Controller;
 
 import br.com.kaikedev.paymentservice.Entity.Dto.PaymentErrorResponse;
 import br.com.kaikedev.paymentservice.Entity.Dto.PaymentRequest;
+import br.com.kaikedev.paymentservice.Entity.Dto.PaymentResponse;
 import br.com.kaikedev.paymentservice.Service.PaymentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,14 +24,14 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<?> ProcessPayment(@RequestBody PaymentRequest paymentRequest)
+    public ResponseEntity<PaymentResponse> ProcessPayment(@RequestBody PaymentRequest paymentRequest)
     {
-        Object response = paymentService.processPayment(paymentRequest);
+        PaymentResponse response = paymentService.processPayment(paymentRequest);
 
-        if(response instanceof PaymentErrorResponse errorResponse) {
-            return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+        if(!HttpStatus.valueOf(response.getStatus()).is2xxSuccessful()) {
+            return ResponseEntity.status(response.getStatus()).body(response);
         }
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
 

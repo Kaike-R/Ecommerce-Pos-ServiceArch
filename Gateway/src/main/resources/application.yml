@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: Gateway
+  cloud:
+    gateway:
+      mvc:
+        http-client:
+          type: autodetect
+  http:
+    client:
+      connect-timeout: 60s
+      read-timeout: 60s
+
+
+endpoint:
+  login: http://localhost:8081/v1/auth/login
+  loginMock: https://httpbin.org/bearer

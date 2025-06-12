@@ -48,19 +48,23 @@ public class ProductService {
     public ProductDto getProductById(int id) {
         ProductEntity productEntity = productRepository.getProduct(id);
         List<ProductImageEntity> productImageEntity = productImageRepository.findImageByProductId(productEntity.getId());
-        List<String> temp = List.of();
+        List<String> temp = new ArrayList<>(List.of());
 
-
-        for (ProductImageEntity imageEntity : productImageEntity) {
-           temp.add(imageEntity.getImage());
+        if (productImageEntity != null) {
+            for (ProductImageEntity imageEntity : productImageEntity) {
+                temp.add(imageEntity.getImage());
+            }
         }
 
 
         ProductDto productDto = new ProductDto();
 
+        productDto.setId(productEntity.getId());
         productDto.setName(productEntity.getName());
         productDto.setDescription(productEntity.getDescription());
+        productDto.setPrice(productEntity.getPrice());
         productDto.setImages(temp);
+        productDto.setQuantity(productEntity.getQuantity());
         return productDto;
     }
 
@@ -76,9 +80,10 @@ public class ProductService {
 
     public ProductEntity uptadeStock(ProductDto productDto) {
         ProductEntity productEntity = new ProductEntity();
-        productEntity.setName(productDto.getName());
-        productEntity.setDescription(productDto.getDescription());
-        productEntity.setPrice(productDto.getPrice());
+        productEntity = productRepository.getProduct(productDto.getId());
+//        productEntity.setName(productDto.getName());
+//        productEntity.setDescription(productDto.getDescription());
+//        productEntity.setPrice(productDto.getPrice());
         productEntity.setQuantity(productDto.getQuantity());
         return productRepository.uptadeStock(productEntity);
     }

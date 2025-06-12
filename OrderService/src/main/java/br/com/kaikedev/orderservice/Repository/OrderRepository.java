@@ -26,9 +26,10 @@ public class OrderRepository {
         OrderEntity order = new OrderEntity();
         order.setId(rs.getInt("id"));
         order.setCustomerId(rs.getInt("user_id"));
-        order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
         order.setStatus(OrderEnum.valueOf(rs.getString("status")));
         order.setTotalAmount(rs.getDouble("total_amount"));
+        order.setOrderDate(rs.getTimestamp("created_at").toLocalDateTime());
+        order.setOrderDate(rs.getTimestamp("updated_at").toLocalDateTime());
         return order;
     };
 
@@ -100,7 +101,8 @@ public class OrderRepository {
     }
 
     public Optional<OrderEntity> findById(Integer id) {
-        String sql = "SELECT * FROM orders WHERE id = ?";
+        String sql = "SELECT id, user_id, status, total_amount, created_at, updated_at FROM orders WHERE id = ?";
+        String sql2 = "SELECT id, order_id, product_id, product_name, unit_price, quantity, sub_total FROM order_items WHERE order_id = ?";
 
         try {
             OrderEntity order = jdbcTemplate.queryForObject(
@@ -110,7 +112,7 @@ public class OrderRepository {
             );
 
             if (order != null) {
-                List<OrderItemEntity> items = jdbcTemplate.query(sql,
+                List<OrderItemEntity> items = jdbcTemplate.query(sql2,
                         (rs, rowNum) -> {
                             OrderItemEntity item = new OrderItemEntity();
                             item.setId(rs.getInt("id"));

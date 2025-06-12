@@ -18,8 +18,8 @@ public class RouterConfig {
     @Value("${internal.endpoint.user-service}")
     private String userEndpoint;
 
-    @Value("${internal.endpoint.email-service}")
-    private String emailEndpoint;
+    @Value("${internal.endpoint.payment-service}")
+    private String paymentEndpoint;
 
     @Value("${internal.endpoint.logistic-service}")
     private String logisticEndpoint;
@@ -46,10 +46,10 @@ public class RouterConfig {
                         .uri(userEndpoint)
                 )
 
-                .route("rota-email", r -> r
-                        .path("/v1/email-service/**")
-                        .filters(f -> f.rewritePath("/v1/email-service/(?<remaining>.*)", "/${remaining}"))
-                        .uri(emailEndpoint)
+                .route("rota-payment", r -> r
+                        .path("/v1/payment-service/**")
+                        .filters(f -> f.rewritePath("/v1/payment-service/(?<remaining>.*)", "/${remaining}"))
+                        .uri(paymentEndpoint)
                 )
 
                 .route("rota-logistic", r -> r

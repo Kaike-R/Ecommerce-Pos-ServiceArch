@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public class ProductDto {
 
+    private Integer id;
+
     private String name;
 
     private String description;
@@ -16,7 +18,8 @@ public class ProductDto {
 
     private Integer quantity;
 
-    ProductDto(String name, String description, Double price ,List<String> images) {
+    public ProductDto(Integer integer,String name, String description, Double price ,List<String> images) {
+        this.id = integer;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -31,6 +34,14 @@ public class ProductDto {
         this.price = price;
         this.images = images;
         this.quantity = quantity;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getDescription() {

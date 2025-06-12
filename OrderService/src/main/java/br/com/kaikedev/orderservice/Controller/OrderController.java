@@ -44,9 +44,9 @@ public class OrderController {
 
         PaymentResponse paymentResponse = new PaymentResponse();
 
-        paymentResponse.setMessage(orderEntity.getStatus().toString());
+        //paymentResponse.setMessage(orderEntity.getStatus().toString());
         paymentResponse.setTransactionId(orderEntity.getId().toString());
-        paymentResponse.setSuccess(true);
+        paymentResponse.setStatus(orderEntity.getStatus().toString());
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(paymentResponse);
 

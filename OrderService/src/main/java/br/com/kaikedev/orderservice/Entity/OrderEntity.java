@@ -78,4 +78,16 @@ public class OrderEntity {
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
+
+    @Override
+    public String toString() {
+        return "OrderEntity{" +
+                "id=" + id +
+                ", customerId=" + customerId +
+                ", orderDate=" + orderDate +
+                ", status=" + status +
+                ", totalAmount=" + totalAmount +
+                ", itens=" + itens +
+                '}';
+    }
 }
