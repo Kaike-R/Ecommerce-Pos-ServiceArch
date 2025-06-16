@@ -31,7 +31,7 @@ public class OrderController {
 
         orderResponse.setMessage(orderEntity.getStatus().toString());
 
-        orderResponse.setCustomer_id(orderEntity.getCustomerId());
+        orderResponse.setCustomer_id( orderEntity.getCustomerId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
 

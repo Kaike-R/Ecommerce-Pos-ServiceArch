@@ -1,6 +1,6 @@
 --create schema UserDatabase;
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS userdatabase.users (
     id SERIAL primary key,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,

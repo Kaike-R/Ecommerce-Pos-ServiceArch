@@ -140,6 +140,7 @@ public class OrderService {
         try {
             order.setStatus(OrderEnum.PROCESSING);
             orderRepository.save(order);
+            log.info(logisticRequest.toString());
             logisticResponse = logisticClient.processShipping(logisticRequest);
         } catch (Exception e) {
             order.setStatus(OrderEnum.PROCESSING_FAILED);

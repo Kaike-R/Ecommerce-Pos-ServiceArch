@@ -2,6 +2,8 @@ package br.com.kaikedev.logisticservice.service;
 
 import br.com.kaikedev.logisticservice.Dto.LogisticRequest;
 import br.com.kaikedev.logisticservice.Dto.LogisticResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -9,13 +11,16 @@ import java.util.UUID;
 @Service
 public class LogisticService {
 
+    private static final Logger log = LoggerFactory.getLogger(LogisticService.class);
+
     public LogisticResponse processDeliveryRequest(LogisticRequest logisticRequest) {
 
         String cep = logisticRequest.getZip();
 
+        log.info(logisticRequest.toString());
 
         // Validações básicas
-        if (cep == null || cep.length() != 8 || !cep.matches("\\d+")) {
+        if (cep == null || cep.length() != 8 || !cep.matches("^\\d{8}$")) {
             return new LogisticResponse("CEP inválido", "error", false, null);
         }
 

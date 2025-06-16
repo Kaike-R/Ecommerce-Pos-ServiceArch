@@ -50,4 +50,13 @@ public class LogisticResponse {
         this.transactionId = transactionId;
     }
 
+    @Override
+    public String toString() {
+        return "LogisticResponse{" +
+                "status='" + status + '\'' +
+                ", message='" + message + '\'' +
+                ", isDeliveary=" + isDeliveary +
+                ", transactionId='" + transactionId + '\'' +
+                '}';
+    }
 }

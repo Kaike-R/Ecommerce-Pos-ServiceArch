@@ -1,4 +1,4 @@
-CREATE TABLE orders (
+CREATE TABLE orderdatabase.orders (
     id INT PRIMARY KEY SERIAL,
     user_id INT NOT NULL,
     order_date TIMESTAMP NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE orders (
     INDEX idx_status (status)
 );
 
-CREATE TABLE order_items (
+CREATE TABLE orderdatabase.order_items (
     id INT PRIMARY KEY SERIAL,
     order_id INT NOT NULL,
     product_id INT NOT NULL,

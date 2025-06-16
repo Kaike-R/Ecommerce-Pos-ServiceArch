@@ -1,4 +1,4 @@
-create table if not exists product(
+create table if not exists productdatabase.product(
 	id SERIAL primary key,
 	name VARCHAR(255) not null,
 	description VARCHAR(255),
@@ -9,7 +9,7 @@ create table if not exists product(
 	quantity INT not null
 );
 
-create table if not exists product_image(
+create table if not exists productdatabase.product_image(
 	id SERIAL primary key,
 	product_id INT not null,
 	image text,

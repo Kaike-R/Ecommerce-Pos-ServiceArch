@@ -2,17 +2,17 @@ package br.com.kaikedev.logisticservice.Dto;
 
 
 public class LogisticRequest {
-    private Integer order_id;
-    private Integer user_id;
+    private Integer orderId;
+    private Integer userId;
     private String address;
     private String city;
     private String state;
     private String zip;
 
 
-    public LogisticRequest(Integer order_id, Integer user_id, String address, String city, String state, String zip) {
-        this.order_id = order_id;
-        this.user_id = user_id;
+    public LogisticRequest(Integer orderId, Integer userId, String address, String city, String state, String zip) {
+        this.orderId = orderId;
+        this.userId = userId;
         this.address = address;
         this.city = city;
         this.state = state;
@@ -23,19 +23,19 @@ public class LogisticRequest {
     }
 
     public Integer getOrderId() {
-        return order_id;
+        return orderId;
     }
 
-    public void setOrderId(Integer order_id) {
-        this.order_id = order_id;
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
     public Integer getUserId() {
-        return user_id;
+        return userId;
     }
 
-    public void setUserId(Integer user_id) {
-        this.user_id = user_id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getAddress() {
@@ -68,5 +68,17 @@ public class LogisticRequest {
 
     public void setZip(String zip) {
         this.zip = zip;
+    }
+
+    @Override
+    public String toString() {
+        return "LogisticRequest{" +
+                "orderId=" + orderId +
+                ", userId=" + userId +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", zip='" + zip + '\'' +
+                '}';
     }
 }

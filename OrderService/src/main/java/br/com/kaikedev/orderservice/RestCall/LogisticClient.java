@@ -25,7 +25,7 @@ public class LogisticClient {
     }
 
     public LogisticResponse processShipping(LogisticRequest logisticRequest) {
-
+        log.info(logisticRequest.toString());
         try {
             ResponseEntity<LogisticResponse> x = restClient.post().uri("/v1/logistic-service/api").body(logisticRequest).retrieve()
                     .toEntity(LogisticResponse.class);
