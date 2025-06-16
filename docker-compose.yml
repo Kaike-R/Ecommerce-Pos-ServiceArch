@@ -11,8 +11,8 @@ services:
       PRODUCT_SERVICE: http://product-service:8001
       ORDER_SERVICE: http://order-service:8002
       USER_SERVICE: http://user-service:8003
-      PAYMENT_SERVICE: http://payment-service:8080
-      LOGISTIC_SERVICE: http://logistic-service:8080
+      PAYMENT_SERVICE: http://payment-service:8004
+      LOGISTIC_SERVICE: http://logistic-service:8005
     ports:
       - "8080:8080"
     networks:
@@ -64,21 +64,29 @@ services:
     networks:
       - rede-interna
 
-#  email-service:
-#    image: email-service:0.1
-#    container_name: email-service
-#    ports:
-#      - "8004:8080"
-#    networks:
-#      - rede-interna
-#
-#  logistic-service:
-#    image: logistic-service:0.1
-#    container_name: logistic-service
-#    ports:
-#      - "8005:8080"
-#    networks:
-#      - rede-interna
+  payment-service:
+    build:
+      context: PaymentService
+    image: payment-service:0.1
+    container_name: payment-service
+    environment:
+      DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase?currentSchema=userdatabase
+      DATASOURCE_USERNAME: myuser
+      DATASOURCE_PASSWORD: mypassword
+    ports:
+      - "8004:8004"
+    networks:
+      - rede-interna
+
+  logistic-service:
+    build:
+      context: LogisticService
+    image: logistic-service:0.1
+    container_name: logistic-service
+    ports:
+      - "8005:8005"
+    networks:
+      - rede-interna
 
   db:
     image: postgres:17
