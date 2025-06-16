@@ -29,7 +29,8 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     private void productImageInitializer()
     {
-        var initialization = productImageRepository.findAll().size();
+        //var initialization = productImageRepository.findAll().size();
+        var initialization = productImageRepository.countFindAll();
 
         if (initialization < 10000000) {
             Faker faker = new Faker();

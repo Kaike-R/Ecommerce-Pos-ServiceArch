@@ -19,6 +19,8 @@ public class UserClient {
     //private String urlBase = "http://httpbin.org";
 
     public UserClient(@Value("${internal.endpoint.GatewayService}") String urlBase) {
+        log.info(urlBase);
+
         this.restClient = RestClient.builder()
                 .baseUrl(urlBase)
                 .build();
@@ -27,6 +29,8 @@ public class UserClient {
 
     public Boolean userExists(Integer id) {
         try {
+
+
             ResponseEntity<Void> responseEntity = restClient.get()
                     .uri("/v1/user-service/api/id/{id}", id)
                     .retrieve()

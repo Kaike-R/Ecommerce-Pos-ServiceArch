@@ -53,6 +53,11 @@ public class ProductImageRepository {
         ));
     }
 
+    public Integer countFindAll() {
+        String sql = "select count(*) from product_image";
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
     public Integer save(Integer productId, String image) {
         String sql = "insert into product_image(product_id,image) values(?,?)";
         Integer x = jdbcTemplate.update(sql, productId, image);
