@@ -8,10 +8,10 @@ export const errorRate = new Rate('errors');
 // Configurações do teste
 export const options = {
     stages: [
-        { duration: '2m', target: 10 },   // Ramp-up para 10 usuários em 2 minutos
-        { duration: '5m', target: 10 },   // Mantém 10 usuários por 5 minutos
-        { duration: '2m', target: 20 },   // Aumenta para 20 usuários em 2 minutos
-        { duration: '5m', target: 20 },   // Mantém 20 usuários por 5 minutos
+        { duration: '2m', target: 500 },   // Ramp-up para 500 usuários em 2 minutos
+        { duration: '2m', target: 500 },   // Mantém 500 usuários por 2 minutos
+        { duration: '2m', target: 1000 },   // Aumenta para 1000 usuários em 2 minutos
+        { duration: '2m', target: 1000 },   // Mantém 1000 usuários por 2 minutos
         { duration: '2m', target: 0 },    // Ramp-down para 0 usuários em 2 minutos
     ],
     thresholds: {
