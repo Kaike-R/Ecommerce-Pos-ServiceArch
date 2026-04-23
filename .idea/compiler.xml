@@ -7,18 +7,18 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ConfigService" />
-        <module name="UserService" />
-        <module name="Gateway" />
-        <module name="ProductService" />
         <module name="Auth" />
-        <module name="OrderService" />
-        <module name="LogisticService" />
-        <module name="PaymentService" />
-        <module name="GatewayService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="EmailService" target="21" />
+      <module name="Gateway" target="21" />
+      <module name="GatewayService" target="21" />
+      <module name="LogisticService" target="21" />
+      <module name="OrderService" target="21" />
+      <module name="PaymentService" target="21" />
+      <module name="ProductService" target="21" />
+      <module name="UserService" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
