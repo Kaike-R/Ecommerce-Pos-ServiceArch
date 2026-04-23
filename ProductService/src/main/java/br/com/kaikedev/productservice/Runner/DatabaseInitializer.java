@@ -56,11 +56,11 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         if (initialization < 100000) {
             Faker faker = new Faker();
-
+            System.out.println("Novo");
             for (int i = initialization; i < 100000; i++) {
                 ProductEntity p = new ProductEntity();
                 p.setName(faker.commerce().productName());
-                p.setQuantity(faker.number().numberBetween(0, 1000));
+                p.setQuantity(faker.number().numberBetween(10000, 1000000));
                 p.setDescription(faker.lorem().sentence());
                 if (i % 2 == 0) {
                     p.setOwnerId(2001);

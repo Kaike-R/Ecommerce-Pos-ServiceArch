@@ -29,6 +29,8 @@ public class OrderController {
 
         OrderResponse orderResponse = new OrderResponse();
 
+        orderResponse.setOrderId(orderEntity.getId());
+
         orderResponse.setMessage(orderEntity.getStatus().toString());
 
         orderResponse.setCustomer_id( orderEntity.getCustomerId());

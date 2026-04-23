@@ -24,10 +24,10 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets:
-          - 'gateway-service:8000'
-          - 'product-service:8080'
-          - 'order-service:8080'
-          - 'user-service:8080'
+          - 'gateway-service:8080'
+          - 'product-service:8001'
+          - 'order-service:8002'
+          - 'user-service:8003'
         # Adicione outros serviços quando descomentar
 
 

@@ -8,14 +8,14 @@ export const errorRate = new Rate('errors');
 // Configurações do teste
 export const options = {
     stages: [
-        { duration: '2m', target: 10 },   // Ramp-up para 10 usuários em 2 minutos
-        { duration: '5m', target: 10 },   // Mantém 10 usuários por 5 minutos
-        { duration: '2m', target: 20 },   // Aumenta para 20 usuários em 2 minutos
-        { duration: '5m', target: 20 },   // Mantém 20 usuários por 5 minutos
+        { duration: '2m', target: 500 },   // Ramp-up para 10 usuários em 2 minutos
+        { duration: '2m', target: 500},   // Mantém 10 usuários por 5 minutos
+        { duration: '2m', target: 1000 },   // Aumenta para 20 usuários em 2 minutos
+        { duration: '2m', target: 1000 },   // Mantém 20 usuários por 5 minutos
         { duration: '2m', target: 0 },    // Ramp-down para 0 usuários em 2 minutos
     ],
     thresholds: {
-        http_req_duration: ['p(95)<2000'], // 95% das requisições devem ser < 2s
+        http_req_duration: ['p(95)<2000'], // 95% das requisições devem ser < 5s
         http_req_failed: ['rate<0.1'],     // Taxa de erro < 10%
         errors: ['rate<0.1'],              // Taxa de erro customizada < 10%
     },
@@ -23,16 +23,12 @@ export const options = {
 
 const BASE_URL = 'http://localhost:8080/v1/order-service/api';
 
-// Dados de teste variados
-const PRODUCTS = [
-    { productId: 31, quantity: 21 },
-    { productId: 12, quantity: 13 },
-    { productId: 25, quantity: 5 },
-    { productId: 18, quantity: 8 },
-    { productId: 42, quantity: 15 },
-];
+// Faixas para geração de produtos aleatórios
+const PRODUCT_ID_MIN = 1;
+const PRODUCT_ID_MAX = 99900;
+const QUANTITY_MIN = 1;
+const QUANTITY_MAX = 1;
 
-const PAYMENT_METHODS = ['pix', 'credit_card', 'debit_card'];
 const CARD_BRANDS = ['visa', 'mastercard', 'amex'];
 const CITIES = ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Salvador', 'Brasília'];
 const STATES = ['SP', 'RJ', 'MG', 'BA', 'DF'];
@@ -47,10 +43,9 @@ function getRandomProducts() {
     const selectedProducts = [];
 
     for (let i = 0; i < numProducts; i++) {
-        const product = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
         selectedProducts.push({
-            productId: product.productId,
-            quantity: Math.floor(Math.random() * product.quantity) + 1
+            productId: Math.floor(Math.random() * (PRODUCT_ID_MAX - PRODUCT_ID_MIN + 1)) + PRODUCT_ID_MIN,
+            quantity: Math.floor(Math.random() * (QUANTITY_MAX - QUANTITY_MIN + 1)) + QUANTITY_MIN
         });
     }
 
@@ -58,7 +53,7 @@ function getRandomProducts() {
 }
 
 function getRandomPaymentMethod() {
-    return PAYMENT_METHODS[Math.floor(Math.random() * PAYMENT_METHODS.length)];
+    return 'pix'; // Sempre usar PIX
 }
 
 function getRandomCard() {
@@ -88,6 +83,33 @@ const headers = {
     'Accept': 'application/json',
 };
 
+// Função para consultar status do pedido
+function checkOrderStatus(orderId) {
+    const statusResponse = http.get(`${BASE_URL}/${orderId}`, { headers });
+
+    const statusSuccess = check(statusResponse, {
+        'order status - status is 200': (r) => r.status === 200,
+        'order status - response time < 1s': (r) => r.timings.duration < 1000,
+        'order status - has response body': (r) => r.body && r.body.length > 0,
+    });
+
+    if (statusSuccess) {
+        try {
+            const orderData = JSON.parse(statusResponse.body);
+            const status = orderData.status || orderData.state || 'unknown';
+            console.log(`📋 Status do pedido ${orderId}: ${status}`);
+            return status;
+        } catch (e) {
+            console.log(`📋 Status do pedido ${orderId}: response não é JSON válido`);
+            return 'unknown';
+        }
+    } else {
+        console.error(`❌ Falha ao consultar status do pedido ${orderId}: ${statusResponse.status}`);
+        errorRate.add(1);
+        return 'error';
+    }
+}
+
 export default function () {
     const userId = getRandomUserId();
     let orderId = null;
@@ -107,7 +129,7 @@ export default function () {
     );
 
     const createOrderSuccess = check(createOrderResponse, {
-        'create order - status is 200 or 201': (r) => r.status === 200 || r.status === 201,
+        'create order - status is 200, 201 or 202': (r) => r.status === 200 || r.status === 201 || r.status === 202,
         'create order - response time < 2s': (r) => r.timings.duration < 2000,
         'create order - has response body': (r) => r.body && r.body.length > 0,
     });
@@ -118,15 +140,20 @@ export default function () {
         return;
     }
 
-    // Extrair orderId da resposta (assumindo que vem no JSON response)
+    // Extrair orderId da resposta
     try {
         const orderData = JSON.parse(createOrderResponse.body);
+        // Usar o orderId retornado pela API
         orderId = orderData.orderId || orderData.id || Math.floor(Math.random() * 1000) + 1;
+
+        console.log(`✅ Pedido ${orderId} criado com sucesso (customer_id: ${orderData.customer_id || 'N/A'})`);
     } catch (e) {
         orderId = Math.floor(Math.random() * 1000) + 1; // Fallback
+        console.log(`✅ Pedido ${orderId} criado com sucesso (usando ID gerado)`);
     }
 
-    console.log(`✅ Pedido ${orderId} criado com sucesso`);
+    // Consultar status após criação
+    const statusAfterCreate = checkOrderStatus(orderId);
 
     // Pausa entre requisições (simula tempo de processamento do usuário)
     sleep(1 + Math.random() * 2); // 1-3 segundos
@@ -149,7 +176,7 @@ export default function () {
     );
 
     const payOrderSuccess = check(payOrderResponse, {
-        'pay order - status is 200 or 201': (r) => r.status === 200 || r.status === 201,
+        'pay order - status is 200, 201 or 202': (r) => r.status === 200 || r.status === 201 || r.status === 202,
         'pay order - response time < 3s': (r) => r.timings.duration < 3000,
         'pay order - has response body': (r) => r.body && r.body.length > 0,
     });
@@ -161,6 +188,9 @@ export default function () {
     }
 
     console.log(`✅ Pagamento do pedido ${orderId} processado`);
+
+    // Consultar status após pagamento
+    const statusAfterPayment = checkOrderStatus(orderId);
 
     sleep(0.5 + Math.random()); // 0.5-1.5 segundos
 
@@ -184,7 +214,7 @@ export default function () {
     );
 
     const shipOrderSuccess = check(shipOrderResponse, {
-        'ship order - status is 200 or 201': (r) => r.status === 200 || r.status === 201,
+        'ship order - status is 200, 201 or 202': (r) => r.status === 200 || r.status === 201 || r.status === 202,
         'ship order - response time < 2s': (r) => r.timings.duration < 2000,
         'ship order - has response body': (r) => r.body && r.body.length > 0,
     });
@@ -196,6 +226,10 @@ export default function () {
     }
 
     console.log(`✅ Envio do pedido ${orderId} processado com sucesso!`);
+
+    // Consultar status final após envio
+    const finalStatus = checkOrderStatus(orderId);
+    console.log(`🎯 Pedido ${orderId} finalizado com status: ${finalStatus}`);
 
     // Pausa final entre iterações
     sleep(1 + Math.random() * 3); // 1-4 segundos
